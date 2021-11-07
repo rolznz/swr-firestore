@@ -1,9 +1,9 @@
-import useSWR, { mutate as mutateStatic, ConfigInterface } from 'swr'
-import { fuego } from '../context'
-import { useRef, useEffect, useMemo, useCallback } from 'react'
+import useSWR, { mutate as mutateStatic, ConfigInterface } from 'swr';
+import { fuego } from '../context';
+import { useRef, useEffect, useMemo, useCallback } from 'react';
 // import { useMemoOne as useMemo } from 'use-memo-one'
-import { empty } from '../helpers/empty'
-import { collectionCache } from '../classes/Cache'
+import { empty } from '../helpers/empty';
+import { collectionCache } from '../classes/Cache';
 
 // type Document<T = {}> = T & { id: string }
 
@@ -12,71 +12,71 @@ import {
   OrderByDirection,
   WhereFilterOp,
   Query,
-} from '@firebase/firestore-types'
-import { isDev } from '../helpers/is-dev'
-import { withDocumentDatesParsed } from '../helpers/doc-date-parser'
-import { Document } from '../types'
+} from '@firebase/firestore-types';
+import { isDev } from '../helpers/is-dev';
+import { withDocumentDatesParsed } from '../helpers/doc-date-parser';
+import { Document } from '../types';
 
-type KeyHack = string & {} // hack to also allow strings
+type KeyHack = string & {}; // hack to also allow strings
 
 // here we get the "key" from our data, to add intellisense for any "orderBy" in the queries and such.
 type OrderByArray<Doc extends object = {}, Key = keyof Doc> = [
   Key | FieldPath | KeyHack,
   OrderByDirection
-]
+];
 type OrderByItem<Doc extends object = {}, Key = keyof Doc> =
   | OrderByArray<Doc>
   | Key
-  | KeyHack
+  | KeyHack;
 type OrderByType<Doc extends object = {}> =
   | OrderByItem<Doc>
-  | OrderByArray<Doc>[]
+  | OrderByArray<Doc>[];
 
 type WhereItem<Doc extends object = {}, Key = keyof Doc> = [
   Key | FieldPath | KeyHack,
   WhereFilterOp,
   unknown
-]
-type WhereArray<Doc extends object = {}> = WhereItem<Doc>[]
-type WhereType<Doc extends object = {}> = WhereItem<Doc> | WhereArray<Doc>
+];
+type WhereArray<Doc extends object = {}> = WhereItem<Doc>[];
+type WhereType<Doc extends object = {}> = WhereItem<Doc> | WhereArray<Doc>;
 
 export type CollectionQueryType<Doc extends object = {}> = {
-  limit?: number
-  orderBy?: OrderByType<Doc>
-  where?: WhereType<Doc>
-  isCollectionGroup?: boolean
+  limit?: number;
+  orderBy?: OrderByType<Doc>;
+  where?: WhereType<Doc>;
+  isCollectionGroup?: boolean;
 
   /**
    * For now, this can only be a number, since it has to be JSON serializable.
    *
    * **TODO** allow DocumentSnapshot here too. This will probably be used with a useStaticCollection hook in the future.
    */
-  startAt?: number
+  startAt?: number;
   /**
    * For now, this can only be a number, since it has to be JSON serializable.
    *
    * **TODO** allow DocumentSnapshot here too. This will probably be used with a useStaticCollection hook in the future.
    */
-  endAt?: number
+  endAt?: number;
   /**
    * For now, this can only be a number, since it has to be JSON serializable.
    *
    * **TODO** allow DocumentSnapshot here too. This will probably be used with a useStaticCollection hook in the future.
    */
-  startAfter?: number
+  startAfter?: number;
   /**
    * For now, this can only be a number, since it has to be JSON serializable.
    *
    * **TODO** allow DocumentSnapshot here too. This will probably be used with a useStaticCollection hook in the future.
    */
-  endBefore?: number
+  endBefore?: number;
 
   // THESE ARE NOT JSON SERIALIZABLE
   // startAt?: number | DocumentSnapshot
   // endAt?: number | DocumentSnapshot
   // startAfter?: number | DocumentSnapshot
   // endBefore?: number | DocumentSnapshot
-}
+};
 
 export const getCollection = async <Doc extends Document = Document>(
   path: string,
@@ -86,23 +86,23 @@ export const getCollection = async <Doc extends Document = Document>(
     parseDates,
     ignoreFirestoreDocumentSnapshotField,
   }: {
-    parseDates?: (string | keyof Doc)[]
+    parseDates?: (string | keyof Doc)[];
     /**
      * If `true`, docs returned in `data` will not include the firestore `__snapshot` field. If `false`, it will include a `__snapshot` field. This lets you access the document snapshot, but makes the document not JSON serializable.
      *
      * Default: `false`
      */
-    ignoreFirestoreDocumentSnapshotField?: boolean
+    ignoreFirestoreDocumentSnapshotField?: boolean;
   } = empty.object
 ) => {
-  const ref = createFirestoreRef(path, query)
+  const ref = createFirestoreRef(path, query);
   const data: Doc[] = await ref.get().then(querySnapshot => {
-    const array: typeof data = []
+    const array: typeof data = [];
     querySnapshot.forEach(doc => {
       const docData =
         doc.data({
           serverTimestamps: 'estimate',
-        }) ?? empty.object
+        }) ?? empty.object;
       const docToAdd = withDocumentDatesParsed(
         {
           ...docData,
@@ -112,9 +112,9 @@ export const getCollection = async <Doc extends Document = Document>(
           __snapshot: ignoreFirestoreDocumentSnapshotField ? undefined : doc,
         } as any,
         parseDates
-      )
+      );
       // update individual docs in the cache
-      mutateStatic(doc.ref.path, docToAdd, false)
+      mutateStatic(doc.ref.path, docToAdd, false);
       if (
         isDev &&
         // @ts-ignore
@@ -124,14 +124,14 @@ export const getCollection = async <Doc extends Document = Document>(
           '[get-collection] warning: Your document, ',
           doc.id,
           ' is using one of the following reserved fields: [exists, id, hasPendingWrites]. These fields are reserved. Please remove them from your documents.'
-        )
+        );
       }
-      array.push(docToAdd)
-    })
-    return array
-  })
-  return data
-}
+      array.push(docToAdd);
+    });
+    return array;
+  });
+  return data;
+};
 
 const createFirestoreRef = <Doc extends object = {}>(
   path: string,
@@ -148,72 +148,72 @@ const createFirestoreRef = <Doc extends object = {}>(
 ) =>
   // { isCollectionGroup = false }: { isCollectionGroup?: boolean } = empty.object
   {
-    let ref: Query = fuego.db.collection(path)
+    let ref: Query = fuego.db.collection(path);
 
     if (isCollectionGroup) {
-      ref = fuego.db.collectionGroup(path)
+      ref = fuego.db.collectionGroup(path);
     }
 
     if (where) {
       function multipleConditions(w: WhereType<Doc>): w is WhereArray<Doc> {
-        return !!(w as WhereArray) && Array.isArray(w[0])
+        return !!(w as WhereArray) && Array.isArray(w[0]);
       }
       if (multipleConditions(where)) {
         where.forEach(w => {
-          ref = ref.where(w[0] as string | FieldPath, w[1], w[2])
-        })
+          ref = ref.where(w[0] as string | FieldPath, w[1], w[2]);
+        });
       } else if (typeof where[0] === 'string' && typeof where[1] === 'string') {
-        ref = ref.where(where[0], where[1], where[2])
+        ref = ref.where(where[0], where[1], where[2]);
       }
     }
 
     if (orderBy) {
       if (typeof orderBy === 'string') {
-        ref = ref.orderBy(orderBy)
+        ref = ref.orderBy(orderBy);
       } else if (Array.isArray(orderBy)) {
         function multipleOrderBy(
           o: OrderByType<Doc>
         ): o is OrderByArray<Doc>[] {
-          return Array.isArray((o as OrderByArray<Doc>[])[0])
+          return Array.isArray((o as OrderByArray<Doc>[])[0]);
         }
         if (multipleOrderBy(orderBy)) {
           orderBy.forEach(([order, direction]) => {
-            ref = ref.orderBy(order as string | FieldPath, direction)
-          })
+            ref = ref.orderBy(order as string | FieldPath, direction);
+          });
         } else {
-          const [order, direction] = orderBy
-          ref = ref.orderBy(order as string | FieldPath, direction)
+          const [order, direction] = orderBy;
+          ref = ref.orderBy(order as string | FieldPath, direction);
         }
       }
     }
 
     if (startAt) {
-      ref = ref.startAt(startAt)
+      ref = ref.startAt(startAt);
     }
 
     if (endAt) {
-      ref = ref.endAt(endAt)
+      ref = ref.endAt(endAt);
     }
 
     if (startAfter) {
-      ref = ref.startAfter(startAfter)
+      ref = ref.startAfter(startAfter);
     }
 
     if (endBefore) {
-      ref = ref.endBefore(endBefore)
+      ref = ref.endBefore(endBefore);
     }
 
     if (limit) {
-      ref = ref.limit(limit)
+      ref = ref.limit(limit);
     }
 
-    return ref
-  }
+    return ref;
+  };
 
 type ListenerReturnType<Doc extends Document = Document> = {
-  initialData: Doc[] | null
-  unsubscribe: ReturnType<ReturnType<typeof fuego['db']['doc']>['onSnapshot']>
-}
+  initialData: Doc[] | null;
+  unsubscribe: ReturnType<ReturnType<typeof fuego['db']['doc']>['onSnapshot']>;
+};
 
 const createListenerAsync = async <Doc extends Document = Document>(
   path: string,
@@ -223,27 +223,27 @@ const createListenerAsync = async <Doc extends Document = Document>(
     ignoreFirestoreDocumentSnapshotField = true,
   }: // isCollectionGroup = false,
   {
-    parseDates?: (string | keyof Doc)[]
+    parseDates?: (string | keyof Doc)[];
     /**
      * If `true`, docs returned in `data` will not include the firestore `__snapshot` field. If `false`, it will include a `__snapshot` field. This lets you access the document snapshot, but makes the document not JSON serializable.
      *
      * Default: `true`
      */
-    ignoreFirestoreDocumentSnapshotField?: boolean
+    ignoreFirestoreDocumentSnapshotField?: boolean;
   }
 ): Promise<ListenerReturnType<Doc>> => {
   return new Promise(resolve => {
-    const query: CollectionQueryType = JSON.parse(queryString) ?? {}
-    const ref = createFirestoreRef(path, query)
+    const query: CollectionQueryType = JSON.parse(queryString) ?? {};
+    const ref = createFirestoreRef(path, query);
     const unsubscribe = ref.onSnapshot(
       { includeMetadataChanges: true },
       querySnapshot => {
-        const data: Doc[] = []
+        const data: Doc[] = [];
         querySnapshot.forEach(doc => {
           const docData =
             doc.data({
               serverTimestamps: 'estimate',
-            }) ?? empty.object
+            }) ?? empty.object;
           const docToAdd = withDocumentDatesParsed(
             {
               ...docData,
@@ -255,7 +255,7 @@ const createListenerAsync = async <Doc extends Document = Document>(
                 : doc,
             } as any,
             parseDates
-          )
+          );
           if (
             isDev &&
             // @ts-ignore
@@ -265,27 +265,27 @@ const createListenerAsync = async <Doc extends Document = Document>(
               '[use-collection] warning: Your document, ',
               doc.id,
               ' is using one of the following reserved fields: [exists, id, hasPendingWrites]. These fields are reserved. Please remove them from your documents.'
-            )
+            );
           }
           // update individual docs in the cache
-          mutateStatic(doc.ref.path, docToAdd, false)
-          data.push(docToAdd)
-        })
+          mutateStatic(doc.ref.path, docToAdd, false);
+          data.push(docToAdd);
+        });
         // resolve initial data
         resolve({
           initialData: data,
           unsubscribe,
-        })
+        });
         // update on listener fire
-        mutateStatic([path, queryString], data, false)
+        mutateStatic([path, queryString], data, false);
       }
-    )
-  })
-}
+    );
+  });
+};
 
 export type CollectionSWROptions<
   Doc extends Document = Document
-> = ConfigInterface<Doc[] | null>
+> = ConfigInterface<Doc[] | null>;
 /**
  * Call a Firestore Collection
  * @template Doc
@@ -304,7 +304,7 @@ export const useCollection = <
      *
      * Default: `false`
      */
-    listen?: boolean
+    listen?: boolean;
     /**
      * An array of key strings that indicate where there will be dates in the document.
      *
@@ -312,17 +312,17 @@ export const useCollection = <
      *
      * This will automatically turn all Firestore dates into JS Date objects, removing the need to do `.toDate()` on your dates.
      */
-    parseDates?: (string | keyof Doc)[]
+    parseDates?: (string | keyof Doc)[];
     /**
      * If `true`, docs returned in `data` will not include the firestore `__snapshot` field. If `false`, it will include a `__snapshot` field. This lets you access the document snapshot, but makes the document not JSON serializable.
      *
      * Default: `true`
      */
-    ignoreFirestoreDocumentSnapshotField?: boolean
+    ignoreFirestoreDocumentSnapshotField?: boolean;
   } = empty.object,
   options: CollectionSWROptions<Doc> = empty.object
 ) => {
-  const unsubscribeRef = useRef<ListenerReturnType['unsubscribe'] | null>(null)
+  const unsubscribeRef = useRef<ListenerReturnType['unsubscribe'] | null>(null);
 
   const {
     where,
@@ -337,7 +337,7 @@ export const useCollection = <
     // __unstableCollectionGroup: isCollectionGroup = false,
     isCollectionGroup,
     ignoreFirestoreDocumentSnapshotField = true,
-  } = query
+  } = query;
 
   // if we're listening, the firestore listener handles all revalidation
   const {
@@ -347,7 +347,7 @@ export const useCollection = <
     revalidateOnFocus = listen ? false : undefined,
     revalidateOnReconnect = listen ? false : undefined,
     dedupingInterval = listen ? 0 : undefined,
-  } = options
+  } = options;
 
   const swrOptions = {
     ...options,
@@ -357,7 +357,7 @@ export const useCollection = <
     revalidateOnFocus,
     revalidateOnReconnect,
     dedupingInterval,
-  }
+  };
 
   // why not just put this into the ref directly?
   // so that we can use the useEffect down below that triggers revalidate()
@@ -383,7 +383,7 @@ export const useCollection = <
       startAt,
       where,
     ]
-  )
+  );
 
   // we move this to a Ref
   // why? because we shouldn't have to include it in the key
@@ -396,24 +396,24 @@ export const useCollection = <
   //   isCollectionGroupQuery.current = isCollectionGroup
   // }, [isCollectionGroup])
 
-  const dateParser = useRef(parseDates)
+  const dateParser = useRef(parseDates);
   useEffect(() => {
-    dateParser.current = parseDates
-  }, [parseDates])
+    dateParser.current = parseDates;
+  }, [parseDates]);
 
   // we move listen to a Ref
   // why? because we shouldn't have to include "listen" in the key
   // if we do, then calling mutate() won't be consistent for all
   // collections with the same path & query
-  const shouldListen = useRef(listen)
+  const shouldListen = useRef(listen);
   useEffect(() => {
-    shouldListen.current = listen
-  })
+    shouldListen.current = listen;
+  });
 
-  const shouldIgnoreSnapshot = useRef(ignoreFirestoreDocumentSnapshotField)
+  const shouldIgnoreSnapshot = useRef(ignoreFirestoreDocumentSnapshotField);
   useEffect(() => {
-    shouldIgnoreSnapshot.current = ignoreFirestoreDocumentSnapshotField
-  }, [ignoreFirestoreDocumentSnapshotField])
+    shouldIgnoreSnapshot.current = ignoreFirestoreDocumentSnapshotField;
+  }, [ignoreFirestoreDocumentSnapshotField]);
 
   const swr = useSWR<Doc[] | null>(
     // if the path is null, this means we don't want to fetch yet.
@@ -421,8 +421,8 @@ export const useCollection = <
     async (path: string, queryString: string) => {
       if (shouldListen.current) {
         if (unsubscribeRef.current) {
-          unsubscribeRef.current()
-          unsubscribeRef.current = null
+          unsubscribeRef.current();
+          unsubscribeRef.current = null;
         }
         const { unsubscribe, initialData } = await createListenerAsync<Doc>(
           path,
@@ -431,9 +431,9 @@ export const useCollection = <
             parseDates: dateParser.current,
             ignoreFirestoreDocumentSnapshotField: shouldIgnoreSnapshot.current,
           }
-        )
-        unsubscribeRef.current = unsubscribe
-        return initialData
+        );
+        unsubscribeRef.current = unsubscribe;
+        return initialData;
       }
 
       const data = await getCollection<Doc>(
@@ -443,11 +443,11 @@ export const useCollection = <
           parseDates: dateParser.current,
           ignoreFirestoreDocumentSnapshotField: shouldIgnoreSnapshot.current,
         }
-      )
-      return data
+      );
+      return data;
     },
     swrOptions
-  )
+  );
 
   // if listen or changes,
   // we run revalidate.
@@ -458,19 +458,19 @@ export const useCollection = <
   // but then a `users` fetch with `listen` set to `false` updated, it wouldn't mutate both.
   // thus, we move the `listen` and option to a ref user in `useSWR`,
   // and we call `revalidate` if it changes.
-  const mounted = useRef(false)
+  const mounted = useRef(false);
   useEffect(() => {
     // TODO should this only happen if listen is false? No, BC swr should revalidate on a change.
-    if (mounted.current) revalidateRef.current()
-    else mounted.current = true
-  }, [listen])
+    if (mounted.current) revalidateRef.current();
+    else mounted.current = true;
+  }, [listen]);
 
   // this MUST be after the previous effect to avoid duplicate initial validations.
   // only happens on updates, not initial mounting
-  const revalidateRef = useRef(swr.revalidate)
+  const revalidateRef = useRef(swr.revalidate);
   useEffect(() => {
-    revalidateRef.current = swr.revalidate
-  })
+    revalidateRef.current = swr.revalidate;
+  });
 
   useEffect(() => {
     // TODO should this only be for listen, since SWR updates with the others?
@@ -478,20 +478,20 @@ export const useCollection = <
     return () => {
       // clean up listener on unmount if it exists
       if (unsubscribeRef.current) {
-        unsubscribeRef.current()
-        unsubscribeRef.current = null
+        unsubscribeRef.current();
+        unsubscribeRef.current = null;
       }
-    }
+    };
     // should depend on the path, queyr, and listen being the same...
-  }, [path, listen, memoQueryString])
+  }, [path, listen, memoQueryString]);
 
   // add the collection to the cache,
   // so that we can mutate it from document calls later
   useEffect(() => {
-    if (path) collectionCache.addCollectionToCache(path, memoQueryString)
-  }, [path, memoQueryString])
+    if (path) collectionCache.addCollectionToCache(path, memoQueryString);
+  }, [path, memoQueryString]);
 
-  const { data, isValidating, revalidate, mutate, error } = swr
+  const { data, isValidating, revalidate, mutate, error } = swr;
 
   /**
    * `add(data)`: Extends the Firestore document [`add` function](https://firebase.google.com/docs/firestore/manage-data/add-data).
@@ -499,40 +499,40 @@ export const useCollection = <
    */
   const add = useCallback(
     (data: Data | Data[]) => {
-      if (!path) return null
+      if (!path) return null;
 
-      const dataArray = Array.isArray(data) ? data : [data]
+      const dataArray = Array.isArray(data) ? data : [data];
 
-      const ref = fuego.db.collection(path)
+      const ref = fuego.db.collection(path);
 
       const docsToAdd: Doc[] = (dataArray.map(doc => ({
         ...doc,
         // generate IDs we can use that in the local cache that match the server
         id: ref.doc().id,
-      })) as unknown) as Doc[] // solve this annoying TS bug 😅
+      })) as unknown) as Doc[]; // solve this annoying TS bug 😅
 
       // add to cache
       if (!listen) {
         // we only update the local cache if we don't have a listener set up
         // why? because Firestore automatically handles this part for subscriptions
         mutate(prevState => {
-          const state = prevState ?? empty.array
-          return [...state, ...docsToAdd]
-        }, false)
+          const state = prevState ?? empty.array;
+          return [...state, ...docsToAdd];
+        }, false);
       }
 
       // add to network
-      const batch = fuego.db.batch()
+      const batch = fuego.db.batch();
 
       docsToAdd.forEach(({ id, ...doc }) => {
         // take the ID out of the document
-        batch.set(ref.doc(id), doc)
-      })
+        batch.set(ref.doc(id), doc);
+      });
 
-      return batch.commit()
+      return batch.commit();
     },
     [listen, mutate, path]
-  )
+  );
 
   return {
     data,
@@ -550,5 +550,5 @@ export const useCollection = <
      * Note: This is not necessary to use. `useCollection` already unmounts the listener for you. This is only intended if you want to unsubscribe on your own.
      */
     unsubscribe: unsubscribeRef.current,
-  }
-}
+  };
+};

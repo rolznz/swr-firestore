@@ -1,7 +1,7 @@
 # SWR + Firestore
 
 ```js
-const { data } = useDocument('users/fernando')
+const { data } = useDocument("users/fernando");
 ```
 
 **It's that easy.**
@@ -13,6 +13,16 @@ const { data } = useDocument('users/fernando')
 🍕 This library is built on top [useSWR](https://swr.now.sh), meaning you get all of its awesome benefits out-of-the-box.
 
 You can now fetch, add, and mutate Firestore data with zero boilerplate.
+
+## V.017 Updates
+
+- Update to React 17
+- Update to Firebase 8
+- Add Tests
+  - useCollection
+- Bug fixes:
+- Remove Babel
+- Remove React Native
 
 ## Features
 
@@ -53,10 +63,10 @@ If you like this library, give it star and let me know on [Twitter](https://twit
 ## Installation
 
 ```sh
-yarn add @nandorojo/swr-firestore
+yarn add swr-firestore
 
 # or
-npm install @nandorojo/swr-firestore
+npm install swr-firestore
 ```
 
 Install firebase:
@@ -82,23 +92,23 @@ If you're using `next.js`, this goes in your `pages/_app.js` file.
 `App.js`
 
 ```jsx
-import React from 'react'
-import 'firebase/firestore'
-import 'firebase/auth'
-import { Fuego, FuegoProvider } from '@nandorojo/swr-firestore'
+import React from "react";
+import "firebase/firestore";
+import "firebase/auth";
+import { Fuego, FuegoProvider } from "swr-firestore";
 
 const firebaseConfig = {
   // put yours here
-}
+};
 
-const fuego = new Fuego(firebaseConfig)
+const fuego = new Fuego(firebaseConfig);
 
 export default function App() {
   return (
     <FuegoProvider fuego={fuego}>
       <YourAppHere />
     </FuegoProvider>
-  )
+  );
 }
 ```
 
@@ -113,37 +123,37 @@ _Assuming you've already completed the setup..._
 ### Subscribe to a document
 
 ```js
-import React from 'react'
-import { useDocument } from '@nandorojo/swr-firestore'
-import { Text } from 'react-native'
+import React from "react";
+import { useDocument } from "swr-firestore";
+import { Text } from "react-native";
 
 export default function User() {
-  const user = { id: 'Fernando' }
+  const user = { id: "Fernando" };
   const { data, update, error } = useDocument(`users/${user.id}`, {
-    listen: true,
-  })
+    listen: true
+  });
 
-  if (error) return <Text>Error!</Text>
-  if (!data) return <Text>Loading...</Text>
+  if (error) return <Text>Error!</Text>;
+  if (!data) return <Text>Loading...</Text>;
 
-  return <Text>Name: {data.name}</Text>
+  return <Text>Name: {data.name}</Text>;
 }
 ```
 
 ### Get a collection
 
 ```js
-import React from 'react'
-import { useCollection } from '@nandorojo/swr-firestore'
-import { Text } from 'react-native'
+import React from "react";
+import { useCollection } from "swr-firestore";
+import { Text } from "react-native";
 
 export default function UserList() {
-  const { data, update, error } = useCollection(`users`)
+  const { data, update, error } = useCollection(`users`);
 
-  if (error) return <Text>Error!</Text>
-  if (!data) return <Text>Loading...</Text>
+  if (error) return <Text>Error!</Text>;
+  if (!data) return <Text>Loading...</Text>;
 
-  return data.map(user => <Text key={user.id}>{user.name}</Text>)
+  return data.map(user => <Text key={user.id}>{user.name}</Text>);
 }
 ```
 
@@ -154,35 +164,35 @@ export default function UserList() {
 ### Query a users collection:
 
 ```typescript
-const { data } = useCollection('users')
+const { data } = useCollection("users");
 ```
 
 ### Subscribe for real-time updates:
 
 ```typescript
-const { data } = useDocument(`users/${user.id}`, { listen: true })
+const { data } = useDocument(`users/${user.id}`, { listen: true });
 ```
 
 ### Make a complex collection query:
 
 ```typescript
-const { data } = useCollection('users', {
-  where: ['name', '==', 'fernando'],
+const { data } = useCollection("users", {
+  where: ["name", "==", "fernando"],
   limit: 10,
-  orderBy: ['age', 'desc'],
-  listen: true,
-})
+  orderBy: ["age", "desc"],
+  listen: true
+});
 ```
 
 ### Pass options from SWR to your document query:
 
 ```typescript
 // pass SWR options
-const { data } = useDocument('albums/nothing-was-the-same', {
+const { data } = useDocument("albums/nothing-was-the-same", {
   shouldRetryOnError: false,
   onSuccess: console.log,
-  loadingTimeout: 2000,
-})
+  loadingTimeout: 2000
+});
 ```
 
 ### Pass options from SWR to your collection query:
@@ -190,59 +200,59 @@ const { data } = useDocument('albums/nothing-was-the-same', {
 ```typescript
 // pass SWR options
 const { data } = useCollection(
-  'albums',
+  "albums",
   {
     listen: true,
     // you can pass multiple where conditions if you want
     where: [
-      ['artist', '==', 'Drake'],
-      ['year', '==', '2020'],
-    ],
+      ["artist", "==", "Drake"],
+      ["year", "==", "2020"]
+    ]
   },
   {
     shouldRetryOnError: false,
     onSuccess: console.log,
-    loadingTimeout: 2000,
+    loadingTimeout: 2000
   }
-)
+);
 ```
 
 ### Add data to your collection:
 
 ```typescript
-const { data, add } = useCollection('albums', {
-  where: ['artist', '==', 'Drake'],
-})
+const { data, add } = useCollection("albums", {
+  where: ["artist", "==", "Drake"]
+});
 
 const onPress = () => {
   // calling this will automatically update your global cache & Firestore
   add({
-    title: 'Dark Lane Demo Tapes',
-    artist: 'Drake',
-    year: '2020',
-  })
-}
+    title: "Dark Lane Demo Tapes",
+    artist: "Drake",
+    year: "2020"
+  });
+};
 ```
 
 ### Set document data:
 
 ```typescript
-const { data, set, update } = useDocument('albums/dark-lane-demo-tapes')
+const { data, set, update } = useDocument("albums/dark-lane-demo-tapes");
 
 const onReleaseAlbum = () => {
   // calling this will automatically update your global cache & Firestore
   set(
     {
-      released: true,
+      released: true
     },
     { merge: true }
-  )
+  );
 
   // or you could call this:
   update({
-    released: true,
-  })
-}
+    released: true
+  });
+};
 ```
 
 ### Use dynamic fields in a request:
@@ -254,25 +264,25 @@ Once the key is set to a string, the request will send.
 **Get list of users who have you in their friends list**
 
 ```typescript
-import { useDoormanUser } from 'react-doorman'
+import { useDoormanUser } from "react-doorman";
 
-const { uid } = useDoormanUser()
-const { data } = useCollection(uid ? 'users' : null, {
-  where: ['friends', 'array-contains', uid],
-})
+const { uid } = useDoormanUser();
+const { data } = useCollection(uid ? "users" : null, {
+  where: ["friends", "array-contains", uid]
+});
 ```
 
 **Get your favorite song**
 
 ```typescript
-const me = { id: 'fernando' }
+const me = { id: "fernando" };
 
-const { data: user } = useDocument<{ favoriteSong: string }>(`users/${me.id}`)
+const { data: user } = useDocument<{ favoriteSong: string }>(`users/${me.id}`);
 
 // only send the request once the user.favoriteSong exists!
 const { data: song } = useDocument(
   user?.favoriteSong ? `songs/${user.favoriteSong}` : null
-)
+);
 ```
 
 ### Parse date fields in your documents
@@ -283,12 +293,12 @@ Imagine your `user` document schema looks like this:
 
 ```typescript
 type User = {
-  name: string
+  name: string;
   lastUpdated: {
-    date: Date
-  }
-  createdAt: Date
-}
+    date: Date;
+  };
+  createdAt: Date;
+};
 ```
 
 In order to turn `createdAt` and `lastUpdated.date` into JS objects, just use the `parseDates` field:
@@ -296,14 +306,14 @@ In order to turn `createdAt` and `lastUpdated.date` into JS objects, just use th
 **In a document query**
 
 ```typescript
-const { data } = useDocument<User>('user/fernando', {
-  parseDates: ['createdAt', 'lastUpdated.date'],
-})
+const { data } = useDocument<User>("user/fernando", {
+  parseDates: ["createdAt", "lastUpdated.date"]
+});
 
-let createdAt: Date
+let createdAt: Date;
 if (data) {
   // ✅ all good! it's a JS Date now.
-  createdAt = data.createdAt
+  createdAt = data.createdAt;
 }
 ```
 
@@ -312,14 +322,14 @@ if (data) {
 **In a collection query**
 
 ```typescript
-const { data } = useCollection<User>('user', {
-  parseDates: ['createdAt', 'lastUpdated.date'],
-})
+const { data } = useCollection<User>("user", {
+  parseDates: ["createdAt", "lastUpdated.date"]
+});
 
 if (data) {
   data.forEach(document => {
-    document.createdAt // JS date!
-  })
+    document.createdAt; // JS date!
+  });
 }
 ```
 
@@ -330,12 +340,12 @@ For more explanation on the dates, see [issue #4](https://github.com/nandorojo/s
 If you set `ignoreFirestoreDocumentSnapshotField` to `false`, you can access the `__snapshot` field.
 
 ```js
-const { data } = useDocument('users/fernando', {
-  ignoreFirestoreDocumentSnapshotField: false, // default: true
-})
+const { data } = useDocument("users/fernando", {
+  ignoreFirestoreDocumentSnapshotField: false // default: true
+});
 
 if (data) {
-  const id = data?.__snapshot.id
+  const id = data?.__snapshot.id;
 }
 ```
 
@@ -346,12 +356,12 @@ You can do the same for `useCollection` and `useCollectionGroup`. The snapshot w
 Video [here](https://imgur.com/a/o9AlI4N).
 
 ```typescript
-import React from 'react'
-import { fuego, useCollection } from '@nandorojo/swr-firestore'
+import React from "react";
+import { fuego, useCollection } from "swr-firestore";
 
-const collection = 'dump'
-const limit = 1
-const orderBy = 'text'
+const collection = "dump";
+const limit = 1;
+const orderBy = "text";
 
 export default function Paginate() {
   const { data, mutate } = useCollection<{ text: string }>(
@@ -360,24 +370,24 @@ export default function Paginate() {
       limit,
       orderBy,
       // 🚨 this is required to get access to the snapshot!
-      ignoreFirestoreDocumentSnapshotField: false,
+      ignoreFirestoreDocumentSnapshotField: false
     },
     {
       // this lets us update the local cache + paginate without interruptions
       revalidateOnFocus: false,
       refreshWhenHidden: false,
       refreshWhenOffline: false,
-      refreshInterval: 0,
+      refreshInterval: 0
     }
-  )
+  );
 
   const paginate = async () => {
-    if (!data?.length) return
+    if (!data?.length) return;
 
-    const ref = fuego.db.collection(collection)
+    const ref = fuego.db.collection(collection);
 
     // get the snapshot of last document we have right now in our query
-    const startAfterDocument = data[data.length - 1].__snapshot
+    const startAfterDocument = data[data.length - 1].__snapshot;
 
     // get more documents, after the most recent one we have
     const moreDocs = await ref
@@ -386,15 +396,17 @@ export default function Paginate() {
       .limit(limit)
       .get()
       .then(d => {
-        const docs = []
-        d.docs.forEach(doc => docs.push({ ...doc.data(), id: doc.id, __snapshot: doc }))
-        return docs
-      })
+        const docs = [];
+        d.docs.forEach(doc =>
+          docs.push({ ...doc.data(), id: doc.id, __snapshot: doc })
+        );
+        return docs;
+      });
 
     // mutate our local cache, adding the docs we just added
     // set revalidate to false to prevent SWR from revalidating on its own
-    mutate(state => [...state, ...moreDocs], false)
-  }
+    mutate(state => [...state, ...moreDocs], false);
+  };
 
   return data ? (
     <div>
@@ -405,7 +417,7 @@ export default function Paginate() {
     </div>
   ) : (
     <div>Loading...</div>
-  )
+  );
 }
 ```
 
@@ -414,19 +426,19 @@ export default function Paginate() {
 You'll rely on `useDocument` to query documents.
 
 ```js
-import React from 'react'
-import { useDocument } from '@nandorojo/swr-firestore'
+import React from "react";
+import { useDocument } from "swr-firestore";
 
-const user = { id: 'Fernando' }
+const user = { id: "Fernando" };
 export default () => {
-  const { data, error } = useDocument(`users/${user.id}`)
-}
+  const { data, error } = useDocument(`users/${user.id}`);
+};
 ```
 
 If you want to set up a listener (or, in Firestore-speak, `onSnapshot`) just set `listen` to `true`.
 
 ```js
-const { data, error } = useDocument(`users/${user.id}`, { listen: true })
+const { data, error } = useDocument(`users/${user.id}`, { listen: true });
 ```
 
 # API
@@ -445,8 +457,8 @@ import {
   update, // update a firestore document
   fuego, // get the firebase instance used by this lib
   getCollection, // prefetch a collection, without being hooked into SWR or React
-  getDocument, // prefetch a document, without being hooked into SWR or React
-} from '@nandorojo/swr-firestore'
+  getDocument // prefetch a document, without being hooked into SWR or React
+} from "swr-firestore";
 ```
 
 ## `useDocument(path, options)`
@@ -461,7 +473,7 @@ const {
   isValidating,
   mutate,
   unsubscribe
-} = useDocument(path, options)
+} = useDocument(path, options);
 ```
 
 ### Arguments
@@ -483,12 +495,12 @@ By default, it ignores the `__snapshot` field. This makes it easier for newcomer
 
 ```js
 // include the firestore document snapshots
-const { data } = useDocument('users/fernando', {
-  ignoreFirestoreDocumentSnapshotField: false,
-})
+const { data } = useDocument("users/fernando", {
+  ignoreFirestoreDocumentSnapshotField: false
+});
 
 if (data) {
-  const path = data.__snapshot.ref.path
+  const path = data.__snapshot.ref.path;
 }
 ```
 
@@ -526,7 +538,7 @@ const { data, add, error, isValidating, mutate, unsubscribe } = useCollection(
   path,
   query,
   options
-)
+);
 ```
 
 ### Arguments
@@ -564,22 +576,22 @@ Each array follows this outline: `['key', 'comparison-operator', 'value']`. This
 
 ```js
 // get all users whose names are Fernando
-useCollection('users', {
-  where: ['name', '==', 'Fernando'],
-})
+useCollection("users", {
+  where: ["name", "==", "Fernando"]
+});
 
 // get all users whose names are Fernando & who are hungry
-useCollection('users', {
+useCollection("users", {
   where: [
-    ['name', '==', 'Fernando'],
-    ['isHungry', '==', true],
-  ],
-})
+    ["name", "==", "Fernando"],
+    ["isHungry", "==", true]
+  ]
+});
 
 // get all users whose friends array contains Fernando
-useCollection('users', {
-  where: ['friends', 'array-contains', 'Fernando'],
-})
+useCollection("users", {
+  where: ["friends", "array-contains", "Fernando"]
+});
 ```
 
 ##### `orderBy`
@@ -590,22 +602,22 @@ Each array follows this outline: `['key', 'desc' | 'asc']`. This is pulled direc
 
 ```js
 // get users, ordered by name
-useCollection('users', {
-  orderBy: 'name',
-})
+useCollection("users", {
+  orderBy: "name"
+});
 
 // get users, ordered by name in descending order
-useCollection('users', {
-  orderBy: ['name', 'desc'],
-})
+useCollection("users", {
+  orderBy: ["name", "desc"]
+});
 
 // get users, ordered by name in descending order & hunger in ascending order
-useCollection('users', {
+useCollection("users", {
   orderBy: [
-    ['name', 'desc'], //
-    ['isHungry', 'asc'],
-  ],
-})
+    ["name", "desc"], //
+    ["isHungry", "asc"]
+  ]
+});
 ```
 
 ##### `ignoreFirestoreDocumentSnapshotField`
@@ -616,14 +628,14 @@ By default, it ignores the `__snapshot` field. This makes it easier for newcomer
 
 ```js
 // include the firestore document snapshots
-const { data } = useCollection('users', {
-  ignoreFirestoreDocumentSnapshotField: false,
-})
+const { data } = useCollection("users", {
+  ignoreFirestoreDocumentSnapshotField: false
+});
 
 if (data) {
   data.forEach(document => {
-    const path = document?.__snapshot.ref.path
-  })
+    const path = document?.__snapshot.ref.path;
+  });
 }
 ```
 
@@ -715,11 +727,11 @@ The current firebase instance used by this library. Exports the following fields
 - `auth`: the `firebase.auth` variable.
 
 ```js
-import { fuego } from '@nandorojo/swr-firestore'
+import { fuego } from "swr-firestore";
 
-fuego.db.doc('users/Fernando').get()
+fuego.db.doc("users/Fernando").get();
 
-fuego.auth().currentUser?.uid
+fuego.auth().currentUser?.uid;
 ```
 
 ## `getDocument(path, options?)`
@@ -763,24 +775,24 @@ The `data` item will include your TypeScript model (or `null`), and will also in
 
 ```typescript
 type User = {
-  name: string
-}
+  name: string;
+};
 
-const { data } = useDocument<User>('users/fernando')
+const { data } = useDocument<User>("users/fernando");
 
 if (data) {
   const {
     id, // string
     name, // string
     exists, // boolean
-    hasPendingWrites, // boolean
-  } = data
+    hasPendingWrites // boolean
+  } = data;
 }
 
-const id = data?.id //  string | undefined
-const name = data?.name // string | undefined
-const exists = data?.exists // boolean | undefined
-const hasPendingWrites = data?.hasPendingWrites // boolean | undefind
+const id = data?.id; //  string | undefined
+const name = data?.name; // string | undefined
+const exists = data?.exists; // boolean | undefined
+const hasPendingWrites = data?.hasPendingWrites; // boolean | undefind
 ```
 
 ### useCollection
@@ -789,15 +801,15 @@ The `data` item will include your TypeScript model (or `null`), and will also in
 
 ```typescript
 type User = {
-  name: string
-}
+  name: string;
+};
 
-const { data } = useCollection<User>('users')
+const { data } = useCollection<User>("users");
 
 if (data) {
   data.forEach(({ id, name }) => {
     // ...
-  })
+  });
 }
 ```
 
@@ -814,7 +826,7 @@ Simply put, any documents pulled from a Firestore request will update the global
 Imagine you query a `user` document from Firestore:
 
 ```js
-const { data } = useDocument('users/fernando')
+const { data } = useDocument("users/fernando");
 ```
 
 And pretend that this document's `data` returns the following:
@@ -828,7 +840,7 @@ _Remember that `isHungry` is `false` here ^_
 Now, let's say you query the `users` collection anywhere else in your app:
 
 ```js
-const { data } = useCollection('users')
+const { data } = useCollection("users");
 ```
 
 And pretend that this collection's `data` returns the following:

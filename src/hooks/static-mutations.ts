@@ -48,8 +48,8 @@ const set = <Data extends object = {}, Doc extends Document = Document<Data>>(
 
   if (!isDocument)
     throw new Error(
-      `[@nandorojo/swr-firestore] error: called set() function with path: ${path}. This is not a valid document path. 
-      
+      `[@nandorojo/swr-firestore] error: called set() function with path: ${path}. This is not a valid document path.
+
 data: ${JSON.stringify(data)}`
     )
 
@@ -93,7 +93,7 @@ data: ${JSON.stringify(data)}`
     )
   })
 
-  return fuego.db.doc(path).set(data, options)
+  return fuego.db.doc(path).set(data, options || {})
 }
 
 const update = <
@@ -118,8 +118,8 @@ const update = <
 
   if (!isDocument)
     throw new Error(
-      `[@nandorojo/swr-firestore] error: called update function with path: ${path}. This is not a valid document path. 
-      
+      `[@nandorojo/swr-firestore] error: called update function with path: ${path}. This is not a valid document path.
+
 data: ${JSON.stringify(data)}`
     )
 

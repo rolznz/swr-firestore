@@ -4,31 +4,7 @@ We want this community to be friendly and respectful to each other. Please follo
 
 ## Development workflow
 
-To get started with the project, run `yarn bootstrap` in the root directory to install the required dependencies for each package:
-
-```sh
-yarn bootstrap
-```
-
-While developing, you can run the [example app](/example/) to test your changes.
-
-To start the packager:
-
-```sh
-yarn example start
-```
-
-To run the example app on Android:
-
-```sh
-yarn example android
-```
-
-To run the example app on iOS:
-
-```sh
-yarn example android
-```
+To get started with the project, run `yarn install` in the root directory.
 
 Make sure your code passes TypeScript and ESLint. Run the following to verify:
 
@@ -48,6 +24,12 @@ Remember to add tests for your change if possible. Run the unit tests by:
 ```sh
 yarn test
 ```
+
+### Testing
+
+Please note Jest has been fixed at version 25.x due to https://github.com/facebook/jest/issues/7780#issuecomment-669828353
+
+In order to run the tests you need a firebase project with some data setup (hopefully data setup will be automatic soon)
 
 ### Commit message convention
 

@@ -57,3 +57,5 @@ android/keystores/debug.keystore
 lib/
 example/
 example/**/*
+
+.env
