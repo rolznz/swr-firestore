@@ -1,41 +1,37 @@
-//import React from 'react'
-//import {render, screen, waitFor} from '@testing-library/react'
-
-import 'firebase/firestore';
-import 'firebase/auth';
-import { FuegoProvider, useCollection } from '../index';
 import { screen } from '@testing-library/dom';
 import { act, render } from '@testing-library/react';
 import React from 'react';
-import { createTestFuego } from './setup/fuego';
+import { createTestSWRFirestore } from './setup/createTestFirestore';
+import { where, Timestamp } from 'firebase/firestore';
+import { useCollection } from '../hooks/useCollection';
+import { Fruit } from './setup/types';
+import { deleteApp } from '@firebase/app';
 
 function TestComponent() {
-  // Here is the issue - the object passed in ?
-  const { data: fruits } = useCollection<{ name: string }>('fruits', {
-    where: ['createdTimestamp', '<', new Date()],
-  });
+  const { data: fruits } = useCollection<Fruit>(
+    'fruits',
+    where('createdTimestamp', '<', Timestamp.fromDate(new Date(2021, 10, 11))),
+    where('createdTimestamp', '>', Timestamp.fromDate(new Date(2021, 10, 9)))
+  );
+
   return (
     <>
       {fruits?.map((fruit) => (
-        <p key={fruit.id}>{fruit.name}</p>
+        <p role="fruit" key={fruit.id}>
+          {fruit.data().name}
+        </p>
       ))}
     </>
   );
 }
 
-const fuego = createTestFuego();
-function TestApp({ children }: { children: React.ReactNode }) {
-  return <FuegoProvider fuego={fuego}>{children}</FuegoProvider>;
-}
-
-describe('useCollectionDateFilter', () => {
-  test('Can filter by date', async () => {
-    render(
-      <TestApp>
-        <TestComponent />
-      </TestApp>
-    );
+describe('useCollection', () => {
+  test('Can render collection', async () => {
+    const app = createTestSWRFirestore();
+    render(<TestComponent />);
     await act(() => screen.findByText('Banana'));
     expect(screen.getByText('Banana')).toBeInTheDocument();
+    expect(screen.getAllByRole('fruit').length).toBe(1);
+    await deleteApp(app);
   });
 });
