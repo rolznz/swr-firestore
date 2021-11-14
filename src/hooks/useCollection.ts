@@ -9,11 +9,13 @@ import {
   DocumentData,
 } from 'firebase/firestore';
 import useSWR from 'swr';
+import { useSWRConfig } from 'swr';
 
 export function useCollection<T>(
   path: string | null,
   ...constraints: QueryConstraint[]
 ) {
+  const { mutate } = useSWRConfig();
   let key = null;
   let q: Query<DocumentData> | null = null;
   if (path) {
@@ -30,6 +32,10 @@ export function useCollection<T>(
       throw new Error('query is null');
     }
     const result = await (await getDocs(q)).docs;
+    result.forEach((doc) => {
+      mutate(doc.ref.path, doc, false);
+    });
+
     return result as unknown as QueryDocumentSnapshot<T>[];
   });
 }

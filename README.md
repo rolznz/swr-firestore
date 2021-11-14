@@ -24,6 +24,7 @@ function TestComponent() {
 - SWR 1.X
 - Minimal and unopinionated
 - Tests that run against a real firestore project
+- Retrieving a collection will automatically update SWR cache for individual documents
 
 ## Supported Hooks
 
