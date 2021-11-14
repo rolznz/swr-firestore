@@ -1,5 +1,5 @@
 require('dotenv').config();
-import { initializeApp } from '@firebase/app';
+import { initializeApp } from 'firebase/app';
 
 export function createTestSWRFirestore() {
   if (!process.env.FIREBASE_CONFIG) {

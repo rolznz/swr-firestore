@@ -5,11 +5,11 @@ This is a collection of hooks to simplify the use of firestore with SWR. All hoo
 ## Example
 
 ```
-import { initializeApp } from '@firebase/app';
+import { initializeApp } from 'firebase/app';
 initializeApp(options); // setup firestore
 // ...
 
-import { useDocument } from 'swr-firestore/hooks/useDocument';
+import { useDocument } from 'swr-firestore';
 type Fruit = {name: string};
 function TestComponent() {
   const { data: banana } = useDocument<Fruit>('fruits/banana');
@@ -23,7 +23,7 @@ function TestComponent() {
 - Firebase 9.X
 - SWR 1.X
 - Minimal and unopinionated
-- All hooks are tested
+- Tests that run against a real firestore project
 
 ## Supported Hooks
 
