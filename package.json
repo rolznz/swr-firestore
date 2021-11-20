@@ -4,9 +4,7 @@
   "description": "SWR React hooks for Firestore",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
-  "react": "src/index.tsx",
   "files": [
-    "src",
     "lib"
   ],
   "scripts": {
@@ -20,16 +18,15 @@
     "example": "yarn --cwd example"
   },
   "keywords": [],
-  "repository": "https://github.com/nandorojo/swr-firestore",
-  "author": "Fernando Rojo <frojo@sas.upenn.edu> (https://github.com/nandorojo)",
+  "repository": "https://github.com/rolznz/swr-firestore",
+  "author": "rolznz (https://github.com/rolznz)",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/nandorojo/swr-firestore/issues"
+    "url": "https://github.com/rolznz/swr-firestore/issues"
   },
-  "homepage": "https://github.com/nandorojo/swr-firestore#readme",
+  "homepage": "https://github.com/rolznz/swr-firestore#readme",
   "husky": {
     "hooks": {
-      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS",
       "pre-commit": "yarn lint && yarn typescript"
     }
   },
