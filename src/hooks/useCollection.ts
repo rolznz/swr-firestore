@@ -11,16 +11,24 @@ import {
 import useSWR from 'swr';
 import { useSWRConfig } from 'swr';
 
+export type UseCollectionOptions = {
+  constraints: QueryConstraint[];
+};
+
 export function useCollection<T>(
   path: string | null,
-  ...constraints: QueryConstraint[]
+  options?: UseCollectionOptions
 ) {
   const { mutate } = useSWRConfig();
   let key = null;
-  let q: Query<DocumentData> | null = null;
+  let collectionQuery: Query<DocumentData> | null = null;
   if (path) {
-    q = path ? query(collection(getFirestore(), path), ...constraints) : null;
-    key = q ? JSON.stringify((q as any)._query) : null;
+    collectionQuery = path
+      ? query(collection(getFirestore(), path), ...(options?.constraints ?? []))
+      : null;
+    key = collectionQuery
+      ? JSON.stringify((collectionQuery as any)._query)
+      : null;
     if (!key) {
       throw new Error(
         '_query property missing - check firestore implementation'
@@ -28,10 +36,10 @@ export function useCollection<T>(
     }
   }
   return useSWR(key, async () => {
-    if (!q) {
+    if (!collectionQuery) {
       throw new Error('query is null');
     }
-    const result = await (await getDocs(q)).docs;
+    const result = await (await getDocs(collectionQuery)).docs;
     result.forEach((doc) => {
       mutate(doc.ref.path, doc, false);
     });

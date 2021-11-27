@@ -8,11 +8,16 @@ import { Fruit } from './setup/types';
 import { deleteApp } from '@firebase/app';
 
 function TestComponent() {
-  const { data: fruits } = useCollection<Fruit>(
-    'fruits',
-    where('createdTimestamp', '<', Timestamp.fromDate(new Date(2021, 10, 11))),
-    where('createdTimestamp', '>', Timestamp.fromDate(new Date(2021, 10, 9)))
-  );
+  const { data: fruits } = useCollection<Fruit>('fruits', {
+    constraints: [
+      where(
+        'createdTimestamp',
+        '<',
+        Timestamp.fromDate(new Date(2021, 10, 11))
+      ),
+      where('createdTimestamp', '>', Timestamp.fromDate(new Date(2021, 10, 9))),
+    ],
+  });
 
   return (
     <>

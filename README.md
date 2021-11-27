@@ -9,11 +9,12 @@ import { initializeApp } from 'firebase/app';
 initializeApp(options); // setup firestore
 // ...
 
-import { useDocument } from 'swr-firestore';
+import { useDocument, useCollection } from 'swr-firestore';
 type Fruit = {name: string};
 function TestComponent() {
   const { data: banana } = useDocument<Fruit>('fruits/banana');
-  return <p>{banana?.data()?.name}</p>;
+  const { data: fruits } = useCollection<Fruit>('fruits');
+  const { data: yellowFruits } = useCollection<Fruit>('fruits', {constraints: where('color', '==', 'yellow')});
 }
 ```
 
@@ -22,8 +23,8 @@ function TestComponent() {
 - Typescript Enabled
 - Firebase 9.X
 - SWR 1.X
-- Minimal and unopinionated
-- Tests that run against a real firestore project
+- Minimal - no side effects, all hooks are optional and expose as much of firestore's functionality as possible. It's up to you how to configure firebase and SWR.
+- Tested against real data - tests run against a real firestore project
 - Retrieving a collection will automatically update SWR cache for individual documents
 
 ## Supported Hooks
