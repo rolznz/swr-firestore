@@ -15,7 +15,8 @@
     "lint": "eslint --ext .js,.ts,.tsx .",
     "build": " rm lib/ -rf && tsc",
     "typescript": "tsc --noEmit",
-    "example": "yarn --cwd example"
+    "example": "yarn --cwd example",
+    "publish": "npm publish"
   },
   "keywords": [],
   "repository": "https://github.com/rolznz/swr-firestore",
