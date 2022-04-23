@@ -7,25 +7,25 @@ import {
   QueryConstraint,
   Query,
   DocumentData,
+  onSnapshot,
 } from 'firebase/firestore';
+import React from 'react';
 import useSWR from 'swr';
 import { useSWRConfig } from 'swr';
 
 export type UseCollectionOptions = {
-  constraints: QueryConstraint[];
+  constraints?: QueryConstraint[];
+  listen?: boolean;
 };
 
-export function useCollection<T>(
+function useCollectionInternal<T>(
   path: string | null,
   options?: UseCollectionOptions
 ) {
   const { mutate } = useSWRConfig();
   let key = null;
-  let collectionQuery: Query<DocumentData> | null = null;
-  if (path) {
-    collectionQuery = path
-      ? query(collection(getFirestore(), path), ...(options?.constraints ?? []))
-      : null;
+  const collectionQuery = getCollectionQuery(path, options);
+  if (collectionQuery) {
     key = collectionQuery
       ? JSON.stringify((collectionQuery as any)._query)
       : null;
@@ -35,6 +35,7 @@ export function useCollection<T>(
       );
     }
   }
+
   return useSWR(key, async () => {
     if (!collectionQuery) {
       throw new Error('query is null');
@@ -46,4 +47,38 @@ export function useCollection<T>(
 
     return result as unknown as QueryDocumentSnapshot<T>[];
   });
+}
+
+export function useCollection<T>(
+  path: string | null,
+  options?: UseCollectionOptions
+) {
+  const swr = useCollectionInternal<T>(path, options);
+  React.useEffect(() => {
+    let unsub = () => {};
+    if (path && options?.listen) {
+      const collectionQuery = getCollectionQuery(path, options);
+      if (collectionQuery) {
+        unsub = onSnapshot(collectionQuery, (querySnapshot) => {
+          swr.mutate(querySnapshot.docs as QueryDocumentSnapshot<T>[]);
+        });
+      }
+    }
+    return unsub;
+  }, [options, path]);
+
+  return swr;
+}
+
+function getCollectionQuery(
+  path: string | null,
+  options: UseCollectionOptions | undefined
+) {
+  let collectionQuery: Query<DocumentData> | null = null;
+  if (path) {
+    collectionQuery = path
+      ? query(collection(getFirestore(), path), ...(options?.constraints ?? []))
+      : null;
+  }
+  return collectionQuery;
 }

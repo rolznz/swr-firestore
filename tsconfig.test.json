@@ -1,8 +1,0 @@
-{
-  "extends": "./tsconfig.json",
-  "compilerOptions": {
-    "types": ["node", "jest", "@testing-library/jest-dom"]
-  },
-  "exclude": ["node_modules"],
-  "include": [".eslintrc.js"]
-}

@@ -3,30 +3,19 @@ import { screen } from '@testing-library/dom';
 import { act, render } from '@testing-library/react';
 import React from 'react';
 import { createTestSWRFirestore } from './setup/createTestFirestore';
-import { where, Timestamp } from 'firebase/firestore';
 import { useCollection } from '../hooks/useCollection';
 import { Fruit } from './setup/types';
 import { deleteApp } from 'firebase/app';
 import { waitForSetup } from './setup/setupTests';
+import { doc, getFirestore, setDoc } from 'firebase/firestore';
 
 function TestComponent() {
-  const { data: fruits } = useCollection<Fruit>('fruits', {
-    constraints: [
-      where(
-        'createdTimestamp',
-        '<',
-        Timestamp.fromDate(new Date(2021, 10, 11))
-      ),
-      where('createdTimestamp', '>', Timestamp.fromDate(new Date(2021, 10, 9))),
-    ],
-  });
+  const { data: fruits } = useCollection<Fruit>('fruits', { listen: true });
 
   return (
     <>
       {fruits?.map((fruit) => (
-        <p role="fruit" key={fruit.id}>
-          {fruit.data().name}
-        </p>
+        <p key={fruit.id}>{fruit.data().name}</p>
       ))}
     </>
   );
@@ -39,7 +28,16 @@ describe('useCollection', () => {
     render(<TestComponent />);
     await act(() => screen.findByText('Banana'));
     expect(screen.getByText('Banana')).toBeInTheDocument();
-    expect(screen.getAllByRole('fruit').length).toBe(1);
+    expect(screen.queryByText('Grape')).not.toBeInTheDocument();
+    await act(() =>
+      setDoc(doc(getFirestore(), 'fruits/grape'), {
+        name: 'Grape',
+        color: '#00ff00',
+      })
+    );
+    await act(() => screen.findByText('Grape'));
+    expect(screen.queryByText('Grape')).toBeInTheDocument();
+
     await deleteApp(app);
   });
 });

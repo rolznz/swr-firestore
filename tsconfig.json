@@ -1,27 +1,8 @@
 {
+  "extends": "./tsconfig.prod.json",
   "compilerOptions": {
-    "baseUrl": ".",
-    "outDir": "lib",
-    "allowUnreachableCode": false,
-    "allowUnusedLabels": false,
-    "esModuleInterop": true,
-    "forceConsistentCasingInFileNames": true,
-    "jsx": "react",
-    "lib": ["esnext", "dom"],
-    "module": "esnext",
-    "moduleResolution": "node",
-    "noFallthroughCasesInSwitch": true,
-    "noImplicitReturns": true,
-    "noImplicitUseStrict": false,
-    "noStrictGenericChecks": false,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "resolveJsonModule": true,
-    "skipLibCheck": true,
-    "strict": true,
-    "target": "ES2015",
-    "strictNullChecks": true,
-    "declaration": true
+    "types": ["node", "jest", "@testing-library/jest-dom", "firebase"]
   },
-  "exclude": ["node_modules", "./src/__tests__"]
+  "exclude": ["node_modules"],
+  "include": [".eslintrc.js", "./src/__tests__"]
 }

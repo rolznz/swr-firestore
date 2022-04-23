@@ -1,6 +1,6 @@
 {
   "name": "swr-firestore",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "description": "SWR React hooks for Firestore",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
@@ -10,12 +10,13 @@
   "scripts": {
     "test": "jest",
     "test:files:useDocument": "jest -- \"src/__tests__/useDocument.test.ts\"",
+    "test:files:useDocumentSubscribe": "jest -- \"src/__tests__/useDocumentSubscribe.test.ts\"",
     "test:files:useCollection": "jest -- \"src/__tests__/useCollection.test.ts\"",
     "test:files:useCollectionDateFilter": "jest -- \"src/__tests__/useCollectionDateFilter.test.ts\"",
+    "test:files:useCollectionSubscribe": "jest -- \"src/__tests__/useCollectionSubscribe.test.ts\"",
     "lint": "eslint --ext .js,.ts,.tsx .",
-    "build": " rm lib/ -rf && tsc",
+    "build": " rm lib/ -rf && tsc --project tsconfig.prod.json",
     "typescript": "tsc --noEmit",
-    "example": "yarn --cwd example",
     "publish": "npm publish"
   },
   "keywords": [],
@@ -36,9 +37,11 @@
     "lib/"
   ],
   "devDependencies": {
-    "@testing-library/jest-dom": "^5.15.0",
+    "@testing-library/dom": "^8.13.0",
+    "@testing-library/jest-dom": "4.x",
     "@testing-library/react": "^12.1.2",
     "@types/jest": "^25.x",
+    "@types/node": "^17.0.25",
     "@types/react": "^17.0.34",
     "dotenv": "^10.0.0",
     "eslint": "^7.6.0",
