@@ -1,5 +1,10 @@
 # SWR Firestore
 
+# Fork
+This fork fixes a number of issues in the original repository, which is no longer maintained. See more here: https://github.com/nandorojo/swr-firestore/issues/117#issuecomment-997801890
+
+# Introduction
+
 This is a collection of hooks to simplify the use of firestore with SWR. All hooks are tested against a real firebase project.
 
 ## Example
