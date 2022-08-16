@@ -12,7 +12,6 @@ import {
 } from 'firebase/firestore';
 import React from 'react';
 import useSWR, { useSWRConfig, Cache } from 'swr';
-import { ScopedMutator } from 'swr/dist/types';
 import { log } from '../utils/log';
 
 export type UseCollectionOptions = {
@@ -49,7 +48,7 @@ function useCollectionInternal<T>(
     }
 
     return result as unknown as QueryDocumentSnapshot<T>[];
-  }, []);
+  }, [cache, collectionQuery, compare, mutate, key]);
 
   return useSWR(key, fetcher);
 }
@@ -60,6 +59,7 @@ export function useCollection<T>(
 ) {
   const { cache, compare, mutate } = useSWRConfig();
   const swr = useCollectionInternal<T>(path, options);
+  const swrMutate = swr.mutate;
   React.useEffect(() => {
     let unsub = () => {};
     if (path && options?.listen) {
@@ -75,7 +75,7 @@ export function useCollection<T>(
           );
           log('collection onSnapshot', path, isSame);
           if (!isSame) {
-            swr.mutate(querySnapshot.docs as QueryDocumentSnapshot<T>[], false);
+            swrMutate(querySnapshot.docs as QueryDocumentSnapshot<T>[], false);
             // only update the individual documents that actually changed
             updateDocuments(querySnapshot.docs, cache, compare, mutate);
           }
@@ -83,7 +83,7 @@ export function useCollection<T>(
       }
     }
     return unsub;
-  }, [options, path]);
+  }, [cache, compare, mutate, swrMutate, options, path]);
 
   return swr;
 }
@@ -119,7 +119,7 @@ function updateDocuments(
   result: QueryDocumentSnapshot<DocumentData>[],
   cache: Cache<any>,
   compare: (a: any, b: any) => boolean,
-  mutate: ScopedMutator<undefined>
+  mutate: (path: string, value: unknown, revalidate: boolean) => void
 ) {
   result.forEach((doc) => {
     const cachedValue = cache.get(

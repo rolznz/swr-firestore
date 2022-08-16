@@ -10,13 +10,9 @@ module.exports = {
     'plugin:import/warnings',
     'plugin:import/typescript',
     'plugin:jest/recommended',
+    'plugin:react-hooks/recommended'
   ],
   parser: '@typescript-eslint/parser',
-  parserOptions: {
-    tsconfigRootDir: __dirname,
-    project: ['tsconfig.json', 'tsconfig.test.json'],
-    sourceType: 'module',
-  },
   ignorePatterns: [
     '/lib/**/*', // Ignore built files.
     '/node_modules/**/*', // Ignore built files.

@@ -30,7 +30,7 @@ function useDocumentInternal<T>(path: string | null) {
     }
 
     return result as unknown as DocumentSnapshot<T>;
-  }, [path]);
+  }, [path, cache, compare]);
 
   return useSWR(path, fetcher);
 }
@@ -41,6 +41,7 @@ export function useDocument<T>(
 ) {
   const { cache, compare } = useSWRConfig();
   const swr = useDocumentInternal<T>(path);
+  const swrMutate = swr.mutate;
   React.useEffect(() => {
     let unsub = () => {};
     if (path && options?.listen) {
@@ -50,12 +51,12 @@ export function useDocument<T>(
         log('document onSnapshot', path, isSame);
         if (!isSame) {
           // only update the document if the data actually changed
-          swr.mutate(doc as DocumentSnapshot<T>, false);
+          swrMutate(doc as DocumentSnapshot<T>, false);
         }
       });
     }
     return unsub;
-  }, [options?.listen, path]);
+  }, [options?.listen, path, cache, compare, swrMutate]);
 
   return swr;
 }
